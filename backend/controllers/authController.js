@@ -14,7 +14,9 @@ exports.googleAuth = async (req, res, next) => {
         );
         const { email, name, picture } = userRes.data;
         // console.log(userRes);
-        let user = await User.findOne({ email });
+        let user = await User.findOne({
+            where: { email }
+        });
 
         if (!user) {
             user = await User.create({
@@ -23,11 +25,14 @@ exports.googleAuth = async (req, res, next) => {
                 image: picture,
             });
         }
-        const { _id } = user;
-        const token = jwt.sign({ _id, email },
-            process.env.JWT_SECRET, {
-            expiresIn: process.env.JWT_TIMEOUT,
-        });
+        const { id } = user;
+        const token = jwt.sign(
+            { id, email },
+            process.env.JWT_SECRET,
+            {
+                expiresIn: process.env.JWT_TIMEOUT,
+            }
+        );
         res.status(200).json({
             message: 'success',
             token,
